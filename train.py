@@ -5,6 +5,7 @@ from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from datasets import load_dataset
 from peft import LoraConfig
 import torch
+import os
 
 @dataclass
 class ScriptArguments:
@@ -13,7 +14,7 @@ class ScriptArguments:
     """
 
     model_name: Optional[str] = field(default="scb10x/typhoon-7b", metadata={"help": "the model name"})
-    dataset_name: Optional[str] = field(default='ssmi153/Capybara-ShareGPT', metadata={"help": "the dataset name"})
+    dataset_name: Optional[str] = field(default='output.jsonl', metadata={"help": "the dataset name"})
     use_4_bit: Optional[bool] = field(default=True, metadata={"help": "use 4 bit precision"})
     batch_size: Optional[int] = field(default=4, metadata={"help": "input batch size"})
     gradient_accumulation_steps: Optional[int] = field(default=1, metadata={"help": "input grad accum step"})
@@ -33,16 +34,20 @@ def main():
         bnb_4bit_quant_type='nf4',
         bnb_4bit_use_double_quant=True,
     ) 
-    model = AutoModelForCausalLM.from_pretrained(args.model_name, quantization_config=bnb_config, torch_dtype=torch_dtype)
+    model = AutoModelForCausalLM.from_pretrained(args.model_name, quantization_config=bnb_config, torch_dtype=torch_dtype, attn_implementation="flash_attention_2")
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
     peft_config = LoraConfig(
-        lora_alpha=32,
+        r=32,
+        lora_alpha=8,
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
     )
     tokenizer.pad_token_id = tokenizer.unk_token_id
-    dataset = load_dataset(args.dataset_name, split="train")
+    if os.path.exists(args.dataset_name):
+        dataset = load_dataset('json', data_files=args.dataset_name)['train']
+    else:
+        dataset = load_dataset(args.dataset_name, split="train")
     
     def formatting_prompts_func(examples):
         output_texts = []
