@@ -51,15 +51,16 @@ def main():
     
     def formatting_prompts_func(examples):
         output_texts = []
-        for i in range(len(examples['conversations'])):
-            row = examples['conversations'][i]
-            instruction = row[0]['value']
-            response = row[1]['value']
+        for i in range(len(examples['input'])):
+            input = examples['input'][i]
+            output = examples['output'][i]
             text = f'''Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n
 ### Instruction:
-{instruction}
+Translate message to Thai
+### Input:
+{input}
 ### Response:
-{response}'''
+{output}'''
             output_texts.append(text)
         return output_texts
 
