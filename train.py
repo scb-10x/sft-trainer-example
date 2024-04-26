@@ -45,6 +45,16 @@ def main():
         task_type="CAUSAL_LM",
     )
     tokenizer.pad_token_id = tokenizer.unk_token_id
+    # Update the model config to use the new eos & bos token
+    if getattr(model, "config", None) is not None:
+        model.config.pad_token_id = tokenizer.pad_token_id
+        model.config.bos_token_id = tokenizer.bos_token_id
+        model.config.eos_token_id = tokenizer.eos_token_id
+    if getattr(model, "generation_config", None) is not None:
+        model.generation_config.bos_token_id = tokenizer.bos_token_id
+        model.generation_config.eos_token_id = tokenizer.eos_token_id
+        model.generation_config.pad_token_id = tokenizer.pad_token_id
+
     if os.path.exists(args.dataset_name):
         dataset = load_dataset('json', data_files=args.dataset_name)['train']
     else:
@@ -63,7 +73,7 @@ Translate message to Thai
 ### Input:
 {input}
 ### Response:
-{output}'''
+{output}{tokenizer.eos_token}''' # <-- make sure there are eos_token in the format_prompt; sfttrainer doesn't add eos token internally.
             output_texts.append(text)
         return output_texts
 
@@ -100,6 +110,7 @@ Translate message to Thai
     )
 
     trainer.train()
+    trainer.save_model(args.output_dir)
 
 if __name__ == '__main__':
     main()

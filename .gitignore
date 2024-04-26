@@ -1,5 +1,6 @@
 *.pyc
 .env
 *.jsonl
+ckpt/
 output/
 eval_results.json
