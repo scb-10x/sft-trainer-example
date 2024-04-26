@@ -17,9 +17,10 @@ class ScriptArguments:
     dataset_name: Optional[str] = field(default='output.jsonl', metadata={"help": "the dataset name"})
     use_4_bit: Optional[bool] = field(default=True, metadata={"help": "use 4 bit precision"})
     batch_size: Optional[int] = field(default=4, metadata={"help": "input batch size"})
+    lr: Optional[float] = field(default=4e-4, metadata={"help": "learning rate"})
     gradient_accumulation_steps: Optional[int] = field(default=1, metadata={"help": "input grad accum step"})
     max_seq_length: Optional[int] = field(default=2048, metadata={"help": "max sequence length"})
-    output_dir: Optional[str] = field(default="output", metadata={"help": "ckpt output"})
+    output_dir: Optional[str] = field(default="ckpt", metadata={"help": "ckpt output"})
 
 def main():
     parser = HfArgumentParser(ScriptArguments)
@@ -50,10 +51,12 @@ def main():
         dataset = load_dataset(args.dataset_name, split="train")
     
     def formatting_prompts_func(examples):
+        INPUT_COLUMN = "en"
+        OUTPUT_COLUMN = "th"
         output_texts = []
-        for i in range(len(examples['input'])):
-            input = examples['input'][i]
-            output = examples['output'][i]
+        for i in range(len(examples[INPUT_COLUMN])):
+            input = examples[INPUT_COLUMN][i]
+            output = examples[OUTPUT_COLUMN][i]
             text = f'''Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n
 ### Instruction:
 Translate message to Thai
@@ -74,9 +77,12 @@ Translate message to Thai
         per_device_eval_batch_size=args.batch_size,
         report_to=['tensorboard'],
         optim='adamw_torch',
+        learning_rate=args.lr,
         logging_steps=1,
         bf16=True,
         fp16=False,
+        save_steps=1,
+        save_strategy='epoch',
         gradient_checkpointing=True,
         output_dir=args.output_dir
     )
