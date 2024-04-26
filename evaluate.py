@@ -1,4 +1,5 @@
 import json
+import os
 from datasets import load_dataset
 from sacrebleu.metrics import BLEU
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -34,7 +35,10 @@ def main(base_model: str, lora_path: str, eval_dataset):
     model = PeftModel.from_pretrained(model, lora_path)
     model.eval()
     model.to(device)
-    ds = load_dataset("json", data_files={"test": eval_dataset}, split="test")
+    if os.path.exists(eval_dataset):
+        ds = load_dataset("json", data_files={"validation": eval_dataset}, split="validation")
+    else:
+        ds = load_dataset(eval_dataset, split="validation")
     results = []
     references = []
     inputs = []
@@ -45,7 +49,7 @@ def main(base_model: str, lora_path: str, eval_dataset):
         inputs.append(row['en'])
         input = tokenizer([prompt], return_tensors="pt").to(device)
         output = model.generate(**input, max_new_tokens=256)
-        output = tokenizer.decode(output[0][input['input_ids'].shape[-1]:], skip_special_tokens=True)
+        output = tokenizer.decode(output[0][input['input_ids'].shape[-1]:], skip_special_tokens=True).strip()
         results.append(output)
 
     print(
