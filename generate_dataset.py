@@ -1,4 +1,5 @@
 import json
+import os
 from datasets import load_dataset
 from openai import OpenAI
 from tqdm import tqdm
@@ -8,12 +9,12 @@ load_dotenv()
 
 def call_openai(
     user_prompt: str,
-    model="gpt-3.5-turbo",
+    model="typhoon-instruct",
     max_tokens=1000,
     top_p=0.1,
     temperature=1.0,
 ):
-    client = OpenAI()
+    client = OpenAI(base_url=os.environ['OPENAI_BASE_URL'], api_key=os.environ['OPENAI_API_KEY'])
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": user_prompt},
@@ -31,6 +32,7 @@ def call_openai(
 
 
 def translate_task(text: str, outpath: str):
+    assert isinstance(text, str)
     user_prompt = f"""
 Translate message below to Thai:
 ---
@@ -39,18 +41,18 @@ Translate message below to Thai:
 Output only translation result
 """
     translate_resp = call_openai(user_prompt)
-    row = {"input": text, "output": translate_resp}
+    row = {"en": text, "th": translate_resp}
     with open(outpath, "a") as w:
         w.write(f"{json.dumps(row, ensure_ascii=False)}\n")
 
 
 def process_row(example, outpath):
     for conv in example["conversations"]:
-        translate_task(conv, outpath=outpath)
+        translate_task(conv['value'], outpath=outpath)
 
 
 def main():
-    ds = load_dataset("GAIR/lima", split="train")
+    ds = load_dataset("openaccess-ai-collective/oasst1-guanaco-extended-sharegpt", split="train")
     ds = ds.select(range(100))
     print(ds)
     for row in tqdm(iter(ds)):
