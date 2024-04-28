@@ -20,5 +20,5 @@ python train.py --dataset_name scb10x/scb_mt_enth_2020_aqdf_1k --gradient_accumu
 
 ### Eval
 ```
-python evaluate.py --lora-path output/checkpoint-186 --eval-dataset scb10x/translation_val
+python evaluate.py --lora-path $ckpt_folder --eval-dataset scb10x/translation_val
 ```
