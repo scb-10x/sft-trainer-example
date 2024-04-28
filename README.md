@@ -4,12 +4,13 @@ Simple script to fine-tune LLM using trl SFTTrainer
 ### Install dependency
 ```
 conda create -n llm-trainer-env python=3.10
+eval "$(/home/kasm-user/miniconda3/bin/conda shell.zsh hook)"
 conda activate llm-trainer-env
 conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=11.8 -c pytorch -c nvidia # if cuda v11.8
 conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=12.1 -c pytorch -c nvidia # if cuda v12.1
 pip install packaging ninja
 pip install -r requirements.txt
-pip install flash-attn
+pip install flash-attn # if doesn't work try find pre-build binary here https://github.com/Dao-AILab/flash-attention/releases
 ```
 
 ### Training
