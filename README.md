@@ -4,8 +4,12 @@ Simple script to fine-tune LLM using trl SFTTrainer
 ### Install dependency
 ```
 conda create -n llm-trainer-env python=3.10
-conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=12.1 -c pytorch -c nvidia
+conda activate llm-trainer-env
+conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=11.8 -c pytorch -c nvidia # if cuda v11.8
+conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=12.1 -c pytorch -c nvidia # if cuda v12.1
+pip install packaging ninja
 pip install -r requirements.txt
+pip install flash-attn
 ```
 
 ### Training
