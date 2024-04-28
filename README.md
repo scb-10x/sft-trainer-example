@@ -3,8 +3,8 @@ Simple script to fine-tune LLM using trl SFTTrainer
 
 ### Install dependency
 ```
+eval "$(/home/user/miniconda3/bin/conda shell.zsh hook)"
 conda create -n llm-trainer-env python=3.10
-eval "$(/home/kasm-user/miniconda3/bin/conda shell.zsh hook)"
 conda activate llm-trainer-env
 conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=11.8 -c pytorch -c nvidia # if cuda v11.8
 conda install pytorch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 pytorch-cuda=12.1 -c pytorch -c nvidia # if cuda v12.1
