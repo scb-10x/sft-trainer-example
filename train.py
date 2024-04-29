@@ -35,7 +35,7 @@ def main():
         bnb_4bit_quant_type='nf4',
         bnb_4bit_use_double_quant=True,
     ) 
-    model = AutoModelForCausalLM.from_pretrained(args.model_name, quantization_config=bnb_config, torch_dtype=torch_dtype, attn_implementation="flash_attention_2")
+    model = AutoModelForCausalLM.from_pretrained(args.model_name, quantization_config=bnb_config, torch_dtype=torch_dtype)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
     peft_config = LoraConfig(
         r=32,
